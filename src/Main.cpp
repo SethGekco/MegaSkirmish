@@ -28,14 +28,11 @@ bool MegaSkirmish::Enabled = false;
 bool MegaSkirmish::HousesCreated = false;
 
 // ---------------------------------------------------------------------------
-// Syringe host declaration.
-//
-// Declaring gamemd.exe (YR 1.001, the CnCNet-modified build) as a host with
-// checksum 0 means "any checksum" — the same trick Phobos uses so one binary
-// loads across Ares / CnCNet / Steam variants. If you want to hard-lock to a
-// specific gamemd build, replace 0 with that exe's CRC.
+// No host (declhost) declaration is needed: Syringe identifies the target
+// from the hook addresses themselves, exactly like the CnCNet spawner and
+// Phobos, which also omit it. This keeps the DLL loadable across the
+// Ares / CnCNet / Steam gamemd variants.
 // ---------------------------------------------------------------------------
-declhost(gamemd.exe, 0x0)
 
 // ---------------------------------------------------------------------------
 // Minimal logger -> megaskirmish.log next to the game exe. Independent of the

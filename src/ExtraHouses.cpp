@@ -47,13 +47,13 @@ namespace
 
 	HouseClass* MakeAIHouse(int idx, const MegaSkirmish::ExtraHouseConfig& cfg)
 	{
-		if (cfg.Country < 0 || cfg.Country >= HouseTypeClass::Array->Count)
+		if (cfg.Country < 0 || cfg.Country >= HouseTypeClass::Array.Count)
 		{
 			MegaSkirmish::Log("[MegaSkirmish] House%d: country %d out of range.\n", idx, cfg.Country);
 			return nullptr;
 		}
 
-		const auto pCountry = HouseTypeClass::Array->GetItem(cfg.Country);
+		const auto pCountry = HouseTypeClass::Array.GetItem(cfg.Country);
 
 		// Engine HouseClass ctor (0x4F54A0). Expected to register into
 		// HouseClass::Array and assign ArrayIndex — verify via the log line.
@@ -122,7 +122,7 @@ namespace
 			CellStruct c { static_cast<short>(base.X + off + p.X),
 			               static_cast<short>(base.Y + p.Y) };
 
-			if (const auto pCell = MapClass::Instance->TryGetCellAt(c))
+			if (const auto pCell = MapClass::Instance.TryGetCellAt(c))
 			{
 				if (pUnit->Unlimbo(pCell->GetCoords(), DirType::North))
 				{
