@@ -1,0 +1,38 @@
+name: Build MegaSkirmish DLL
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch YRpp
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "YRpp/Syringe.h")) {
+            git clone --depth 1 https://github.com/Phobos-developers/YRpp.git YRpp
+          }
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build (Release | Win32)
+        run: msbuild MegaSkirmish.vcxproj /p:Configuration=Release /p:Platform=Win32 /m
+
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: MegaSkirmish-dll
+          path: |
+            Release/MegaSkirmish.dll
+            megaskirmish.ini
+            README.md
+          if-no-files-found: error
