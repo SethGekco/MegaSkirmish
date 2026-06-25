@@ -31,6 +31,25 @@
 #include <CellClass.h>
 
 #include <algorithm>
+#include <new>
+
+namespace
+{
+	// GameCreate<T> is concept-gated on std::constructible_from, which is
+	// always false for the engine's abstract classes (HouseClass, UnitClass
+	// inherit pure-virtual IPersist methods from AbstractClass). They're only
+	// concrete at runtime via the real vtable. So we allocate through the
+	// game's allocator and placement-new with the real (address-jumping)
+	// constructor, exactly what the engine itself does internally.
+	template <typename T, typename... TArgs>
+	T* GameSpawn(TArgs&&... args)
+	{
+		void* pMem = YRMemory::Allocate(sizeof(T));
+		if (!pMem)
+			return nullptr;
+		return new (pMem) T(std::forward<TArgs>(args)...);
+	}
+}
 
 namespace
 {
@@ -57,7 +76,7 @@ namespace
 
 		// Engine HouseClass ctor (0x4F54A0). Expected to register into
 		// HouseClass::Array and assign ArrayIndex — verify via the log line.
-		const auto pHouse = GameCreate<HouseClass>(pCountry);
+		const auto pHouse = GameSpawn<HouseClass>(pCountry);
 		if (!pHouse)
 		{
 			MegaSkirmish::Log("[MegaSkirmish] House%d: creation failed.\n", idx);
@@ -109,7 +128,7 @@ namespace
 		CellStruct base = ScenarioClass::Instance->GetWaypointCoords(waypoint);
 		const short off = static_cast<short>((idx + 1) * 4); // spread so MCVs don't stack
 
-		const auto pUnit = GameCreate<UnitClass>(pMCV, pHouse);
+		const auto pUnit = GameSpawn<UnitClass>(pMCV, pHouse);
 		if (!pUnit)
 			return false;
 
